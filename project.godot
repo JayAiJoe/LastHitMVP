@@ -8,9 +8,38 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Node",
+"class": "Character",
+"language": "GDScript",
+"path": "res://src/models/Character.gd"
+}, {
+"base": "Node",
+"class": "Dice",
+"language": "GDScript",
+"path": "res://src/models/Dice.gd"
+}, {
+"base": "Node",
+"class": "Enemy",
+"language": "GDScript",
+"path": "res://src/models/Enemy.gd"
+}, {
+"base": "Node",
+"class": "Player",
+"language": "GDScript",
+"path": "res://src/models/Player.gd"
+} ]
+_global_script_class_icons={
+"Character": "",
+"Dice": "",
+"Enemy": "",
+"Player": ""
+}
+
 [application]
 
 config/name="Last Hit Mvp"
+run/main_scene="res://src/controllers/MainGame.tscn"
 config/icon="res://icon.png"
 
 [physics]

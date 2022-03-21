@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/views/Console.tscn" type="PackedScene" id=1]
+[ext_resource path="res://src/controllers/MainGame.gd" type="Script" id=2]
+
+[node name="MainGame" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="Console" parent="." instance=ExtResource( 1 )]
