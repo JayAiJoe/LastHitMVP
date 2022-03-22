@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://src/assets/RetroTextTheme.tres" type="Theme" id=1]
-[ext_resource path="res://src/views/StatDisplay.tscn" type="PackedScene" id=2]
 [ext_resource path="res://src/views/Console.gd" type="Script" id=3]
 
 [node name="Console" type="Control"]
@@ -18,33 +17,6 @@ margin_bottom = 600.0
 margin_right = 200.0
 margin_bottom = 600.0
 
-[node name="StatDisplay" parent="StatsPanel/Stats" instance=ExtResource( 2 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_right = 200.0
-margin_bottom = 71.0
-
-[node name="StatDisplay2" parent="StatsPanel/Stats" instance=ExtResource( 2 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_top = 91.0
-margin_right = 200.0
-margin_bottom = 162.0
-
-[node name="StatDisplay3" parent="StatsPanel/Stats" instance=ExtResource( 2 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_top = 182.0
-margin_right = 200.0
-margin_bottom = 253.0
-
-[node name="StatDisplay4" parent="StatsPanel/Stats" instance=ExtResource( 2 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_top = 273.0
-margin_right = 200.0
-margin_bottom = 344.0
-
 [node name="StackPanel" type="Panel" parent="."]
 margin_left = 824.0
 margin_right = 1024.0
@@ -53,12 +25,14 @@ margin_bottom = 600.0
 [node name="Stack" type="VBoxContainer" parent="StackPanel"]
 margin_right = 200.0
 margin_bottom = 600.0
+custom_constants/separation = 0
 
 [node name="Game" type="RichTextLabel" parent="."]
 margin_left = 200.0
 margin_right = 824.0
 margin_bottom = 500.0
 theme = ExtResource( 1 )
+bbcode_enabled = true
 scroll_following = true
 
 [node name="Input" type="LineEdit" parent="."]

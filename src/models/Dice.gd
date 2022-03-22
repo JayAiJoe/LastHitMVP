@@ -1,18 +1,18 @@
 extends Node
 class_name Dice
 
-var _value = 0
+var value = 0
 
-func _ready():
+func _init():
 	roll()
 
 func roll() -> int:
 	randomize()
-	_value = randi()%20 + 1
-	return _value
+	value = randi()%20 + 1
+	return value
 
 func set_value(d : int):
-	_value = d
+	value = d
 
 func get_value() -> int:
-	return _value
+	return value

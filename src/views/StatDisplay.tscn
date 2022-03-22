@@ -1,7 +1,17 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://src/assets/RetroTextTheme.tres" type="Theme" id=1]
 [ext_resource path="res://src/views/StatDisplay.gd" type="Script" id=2]
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0.0627451, 0.690196, 0.909804, 1 )
+border_color = Color( 0.164706, 0.203922, 0.572549, 1 )
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxEmpty" id=2]
 
 [node name="StatDisplay" type="MarginContainer"]
 anchor_right = 1.0
@@ -11,26 +21,37 @@ margin_bottom = -10.0
 rect_min_size = Vector2( 150, 60 )
 theme = ExtResource( 1 )
 custom_constants/margin_right = 20
-custom_constants/margin_top = 20
+custom_constants/margin_top = 10
 custom_constants/margin_left = 20
+custom_constants/margin_bottom = 10
 script = ExtResource( 2 )
 
 [node name="VBox" type="VBoxContainer" parent="."]
 margin_left = 20.0
-margin_top = 20.0
+margin_top = 10.0
 margin_right = 984.0
-margin_bottom = 590.0
+margin_bottom = 580.0
 custom_constants/separation = 0
 
 [node name="Label" type="Label" parent="VBox"]
 margin_right = 964.0
 margin_bottom = 26.0
 text = "Name"
+clip_text = true
 
-[node name="ProgressBar" type="ProgressBar" parent="VBox"]
+[node name="ShieldBar" type="ProgressBar" parent="VBox"]
 margin_top = 26.0
 margin_right = 964.0
-margin_bottom = 51.0
+margin_bottom = 36.0
+rect_min_size = Vector2( 150, 10 )
+custom_styles/fg = SubResource( 1 )
+custom_styles/bg = SubResource( 2 )
+percent_visible = false
+
+[node name="HPBar" type="ProgressBar" parent="VBox"]
+margin_top = 36.0
+margin_right = 964.0
+margin_bottom = 61.0
 rect_min_size = Vector2( 150, 25 )
 value = 20.0
 percent_visible = false
