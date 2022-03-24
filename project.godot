@@ -790,6 +790,7 @@ config/icon="res://icon.png"
 
 Actions="*res://src/models/Actions.gd"
 Palette="*res://src/assets/Palette.gd"
+Utils="*res://src/controllers/Utils.gd"
 
 [physics]
 

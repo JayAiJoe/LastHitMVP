@@ -7,14 +7,16 @@ onready var console = $Console
 
 var enemy = null
 var players = []
+var characters = []
 var turn_token = -1
 var player_colors = ["red", "orange", "yellow", "blue"]
 var player_count = 2
+var character_count = 0
 
 func _ready():
 	console.connect("input_sent", self, "process_input")
 	yield(get_info(), "completed")
-	prep_encounter()
+	yield(prep_encounter(), "completed")
 	yield(run_encounter(), "completed")
 
 func process_input(text : String):
@@ -27,7 +29,9 @@ func get_info():
 		var name = yield(self, "input_processed")
 		var new_player = Player.new() 
 		new_player.set_display_name(name)
+		new_player.set_color(player_colors[i])
 		players.append(new_player)
+		characters.append(new_player)
 		console.add_character(new_player)
 	console.ask_input("Type \"g\" to start")
 	while(yield(self, "input_processed") != "g"):
@@ -37,24 +41,47 @@ func get_info():
 func prep_encounter():
 	enemy = Enemy.new()
 	enemy.set_display_name("OwO")
+	characters.append(enemy)
 	console.add_character(enemy)
 	turn_token = 0
 	for p in players:
 		p.roll_dice()
+		yield(get_player_initiative(p), "completed")
+	characters.sort_custom(Utils, "sort_initiative")
+	character_count = characters.size()
+		
+func get_player_initiative(player : Player):
+	console.print_output("\n[color=" + Palette.Colors[player_colors[turn_token]] +"]" + player.get_display_name() + "'s initiative roll:[/color]")
+	var dice_text = "Dice:"
+	var dice_values = player.get_dice_values()
+	for d in dice_values:
+		dice_text += " " + str(d)
+	console.print_output(dice_text)
+	console.ask_input("Enter Initiative")
+	var initiative : int = yield(self, "input_processed") as int
+	while not initiative in dice_values:
+		console.ask_input("Enter Initiative")
+		initiative = yield(self, "input_processed") as int
+	player.set_initiative(initiative)
+	player.consume_die(initiative)
 	
 func run_encounter():
 	while enemy.get_hp() > 0:
-		yield(get_player_action(players[turn_token]), "completed")
-		turn_token = (turn_token+1)%(player_count)
-	console.print_output("Enemy Defeated")
+		var current_character = characters[turn_token]
+		if current_character is Player:
+			if current_character.get_hp() > 0: 
+				yield(get_player_action(characters[turn_token]), "completed")
+		else:
+			perform_enemy_action(characters[turn_token])
+		turn_token = (turn_token+1)%(character_count)
+	console.print_output("\nEnemy Defeated!")
 	
 func get_player_action(player : Player):
-	console.print_output("\n[color=" + Palette.Colors[player_colors[turn_token]] +"]" + player.get_display_name() + "'s turn:[/color]")
+	console.print_output("\n[color=" + Palette.Colors[player.get_color()] +"]" + player.get_display_name() + "'s turn:[/color]")
 	var dice_text = "Dice:"
-	var dice_values = []
-	for d in player.dice_bag:
-		dice_text += " " + str(d.get_value())
-		dice_values.append(d.get_value())
+	var dice_values = player.get_dice_values()
+	for d in dice_values:
+		dice_text += " " + str(d)
 	console.print_output(dice_text)
 	
 	for s in player.skills:
@@ -70,10 +97,10 @@ func get_player_action(player : Player):
 		choice = action[0]
 		die = action.right(1) as int
 	
-	console.print_output("[color=" + Palette.Colors[player_colors[turn_token]] +"]" +player.get_display_name() + "[/color]" + " used " + Actions.skills[player.skills[choice]]["name"])
-	perform_action(player, choice, die)
+	console.print_output("[color=" + Palette.Colors[player.get_color()] +"]" +player.get_display_name() + "[/color]" + " used " + Actions.skills[player.skills[choice]]["name"])
+	perform_player_action(player, choice, die)
 
-func perform_action(player: Player, choice : String, die : int):
+func perform_player_action(player: Player, choice : String, die : int):
 	player.consume_die(die)
 	console.add_action(player, die)
 	var code = player.skills[choice]
@@ -95,3 +122,8 @@ func perform_action(player: Player, choice : String, die : int):
 				player.add_to_hp(component["value"])
 			Actions.Types.GAIN_SHIELD:
 				player.add_to_shield(component["value"])
+
+func perform_enemy_action(enemy : Enemy):
+	var target = players[0]
+	console.print_output("\n" + enemy.get_display_name() + " attacked " + "[color=" + Palette.Colors[target.get_color()] +"]" + target.get_display_name() + "[/color]")
+	target.receive_dmg(enemy.get_atk())
