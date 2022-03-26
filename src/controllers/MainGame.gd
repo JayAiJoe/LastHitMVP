@@ -10,12 +10,13 @@ var players = []
 var characters = []
 var turn_token = -1
 var player_colors = ["red", "orange", "yellow", "blue"]
-var player_count = 2
+var player_count = 1
 var character_count = 0
 
 func _ready():
 	console.connect("input_sent", self, "process_input")
 	yield(get_info(), "completed")
+	yield(prep_campaign(), "completed")
 	yield(prep_encounter(), "completed")
 	yield(run_encounter(), "completed")
 
@@ -37,7 +38,26 @@ func get_info():
 	while(yield(self, "input_processed") != "g"):
 		console.ask_input("Type \"g\" to start")
 	console.print_output("Game Started!")
-	
+
+func prep_campaign():
+	randomize()
+	for p in players:
+		console.print_output("\n[color=" + Palette.Colors[p.get_color()] +"]" + p.get_display_name() + ", choose your starters (3):[/color]")
+		var skill_text = "Skills:"
+		var choices = [1,2,3,4,5]
+		for s in choices:
+			skill_text += "\n " + str(s) + " - " + Actions.get_skill_details(s)
+		console.print_output(skill_text)
+		var ctr = 0
+		var code : int
+		while(ctr < 3):
+			console.ask_input("Enter code")
+			code = yield(self, "input_processed") as int
+			if code in choices:
+				p.assign_skill(char(97+ctr), code)
+				ctr += 1
+		
+		
 func prep_encounter():
 	enemy = Enemy.new()
 	enemy.set_display_name("OwO")
@@ -51,7 +71,7 @@ func prep_encounter():
 	character_count = characters.size()
 		
 func get_player_initiative(player : Player):
-	console.print_output("\n[color=" + Palette.Colors[player_colors[turn_token]] +"]" + player.get_display_name() + "'s initiative roll:[/color]")
+	console.print_output("\n[color=" + Palette.Colors[player.get_color()] +"]" + player.get_display_name() + "'s initiative roll:[/color]")
 	var dice_text = "Dice:"
 	var dice_values = player.get_dice_values()
 	for d in dice_values:
@@ -108,14 +128,16 @@ func perform_player_action(player: Player, choice : String, die : int):
 		match(component["type"]):
 			Actions.Types.DEAL_DAMAGE:
 				var dmg = 0
-				if component["value"]  == Actions.SCALE_ATK:
-					 dmg = player.get_atk()
-				else:
-					dmg = component["value"]
+				match(component["value"]):
+					Actions.SCALE_ATK:
+						dmg = player.get_atk()
+					Actions.SCALE_SHIELD:
+						dmg = player.get_shield()
+					_:
+						dmg = component["value"]
 				var target : Character
 				target = enemy
 				target.receive_dmg(dmg)
-				break
 			Actions.Types.BUFF_ATTACK:
 				player.set_atk(player.get_atk() + component["value"])
 			Actions.Types.HEAL_HP:
