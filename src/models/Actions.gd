@@ -44,4 +44,3 @@ var skills = {
 
 func get_skill_details(code : int):
 	return skills[code].name
-	

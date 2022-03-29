@@ -10,15 +10,18 @@ var players = []
 var characters = []
 var turn_token = -1
 var player_colors = ["red", "orange", "yellow", "blue"]
-var player_count = 1
+var player_count = 4
 var character_count = 0
+
+var last_hit : Player = null
 
 func _ready():
 	console.connect("input_sent", self, "process_input")
 	yield(get_info(), "completed")
 	yield(prep_campaign(), "completed")
-	yield(prep_encounter(), "completed")
-	yield(run_encounter(), "completed")
+	for i in range(9):
+		yield(prep_encounter(), "completed")
+		yield(run_encounter(), "completed")
 
 func process_input(text : String):
 	emit_signal("input_processed", text)
@@ -50,12 +53,15 @@ func prep_campaign():
 		console.print_output(skill_text)
 		var ctr = 0
 		var code : int
+		var chosen = []
 		while(ctr < 3):
 			console.ask_input("Enter code")
 			code = yield(self, "input_processed") as int
-			if code in choices:
+			if code in choices and not code in chosen:
+				chosen.append(code)
 				p.assign_skill(char(97+ctr), code)
 				ctr += 1
+		p.connect("died", self, "handle_player_death")
 		
 		
 func prep_encounter():
@@ -69,6 +75,7 @@ func prep_encounter():
 		yield(get_player_initiative(p), "completed")
 	characters.sort_custom(Utils, "sort_initiative")
 	character_count = characters.size()
+	last_hit = null
 		
 func get_player_initiative(player : Player):
 	console.print_output("\n[color=" + Palette.Colors[player.get_color()] +"]" + player.get_display_name() + "'s initiative roll:[/color]")
@@ -94,7 +101,41 @@ func run_encounter():
 		else:
 			perform_enemy_action(characters[turn_token])
 		turn_token = (turn_token+1)%(character_count)
+	yield(end_encounter(), "completed")
+		
+func end_encounter():
+	if last_hit != null:
+		last_hit.add_to_score(enemy.get_points())
+		yield(reward_player(last_hit, enemy.get_drop_code()), "completed")
+	console.remove_enemy()
 	console.print_output("\nEnemy Defeated!")
+	for p in players:
+		console.print_output(p.get_display_name() + " - " + str(p.get_score()))
+		
+func handle_player_death(player : Player):
+	console.print_output("\n[color=" + Palette.Colors[player.get_color()] +"]" + player.get_display_name() + " died[/color]")
+	var index = players.find(player)
+	console.remove_player(index)
+	players.erase(player)
+	characters.erase(player)
+	player_count = players.size()
+	character_count = characters.size()
+	turn_token = (turn_token)%(character_count)
+	player.queue_free()
+
+func reward_player(winner : Player, skill_code : int):
+	console.print_output("\n[color=" + Palette.Colors[winner.get_color()] +"]" + winner.get_display_name() + ", learn new skill: " + Actions.skills[skill_code]["name"] + "?[/color]")
+	console.print_output("1 - replace skill 1")
+	console.print_output("2 - replace skill 2")
+	console.print_output("3 - replace skill 3")
+	console.print_output("4 - skip")
+	console.ask_input("Choice")
+	var choice = yield(self, "input_processed") as int
+	while not (choice >=1 and choice <=4):
+		choice = yield(self, "input_processed") as int
+	if choice != 4:
+		winner.assign_skill(char(96 + choice), skill_code)
+		
 	
 func get_player_action(player : Player):
 	console.print_output("\n[color=" + Palette.Colors[player.get_color()] +"]" + player.get_display_name() + "'s turn:[/color]")
@@ -138,6 +179,7 @@ func perform_player_action(player: Player, choice : String, die : int):
 				var target : Character
 				target = enemy
 				target.receive_dmg(dmg)
+				last_hit = player
 			Actions.Types.BUFF_ATTACK:
 				player.set_atk(player.get_atk() + component["value"])
 			Actions.Types.HEAL_HP:

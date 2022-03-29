@@ -5,9 +5,10 @@ var skills = { "a" : 0, "b" : 0, "c" : 0, "d" : 0}
 var dice_max = 6
 var dice_bag = []
 var color = "blue"
+var score = 0
 
 func _init():
-	_atk = 10
+	_atk = 20
 	_max_hp = 30
 	_hp = 30
 	assign_skill("a", Actions.Skill_codes.FIREBALL)
@@ -41,3 +42,9 @@ func get_color() -> String:
 	
 func set_color(clr : String):
 	color = clr
+
+func get_score():
+	return score
+	
+func add_to_score(points : int):
+	score += points

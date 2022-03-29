@@ -33,6 +33,12 @@ func add_character(c : Character):
 	stats.append(sd)
 	c.connect("hp_changed", sd, "change_hp")
 	c.connect("shield_changed", sd, "change_shield")
+
+func remove_enemy():
+	stats_list.get_child(stats_list.get_child_count()-1).queue_free()
+
+func remove_player(index : int):
+	stats_list.get_child(index).queue_free()
 	
 	
 func print_output(text: String):

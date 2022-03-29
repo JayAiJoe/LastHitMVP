@@ -3,6 +3,7 @@ class_name Character
 
 signal hp_changed
 signal shield_changed
+signal died
 
 var _initiative = 0
 var _atk = 0
@@ -67,6 +68,8 @@ func receive_dmg(val : int):
 	if true_dmg > 0:
 		_hp -= true_dmg
 		signal_hp_changed()
+	if _hp <= 0:
+		signal_death()
 		
 func add_to_atk(a : int):
 	_atk += a
@@ -80,3 +83,6 @@ func signal_hp_changed():
 
 func signal_shield_changed():
 	emit_signal("shield_changed", _shield)
+
+func signal_death():
+	emit_signal("died", self)
