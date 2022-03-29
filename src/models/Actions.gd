@@ -20,7 +20,8 @@ enum Types {
 	DEAL_DAMAGE,
 	BUFF_ATTACK,
 	HEAL_HP,
-	GAIN_SHIELD
+	GAIN_SHIELD,
+	APPLY_POISON
 }
 
 #match enum to skills array
@@ -30,7 +31,8 @@ enum Skill_codes {
 	FIREBALL,
 	RAGE,
 	MINOR_HEALING,
-	SHIELD_BASH
+	SHIELD_BASH,
+	POISON_FLASK
 }
 
 var skills = {
@@ -39,7 +41,8 @@ var skills = {
 	Skill_codes.BLOCK : {"name": "Block", "components" : [{"type" : Types.GAIN_SHIELD, "target" : Targets.MYSELF, "value" : 10}]},
 	Skill_codes.MINOR_HEALING : {"name": "Minor Healing", "components" : [{"type" : Types.HEAL_HP, "target" : Targets.MYSELF, "value" : 10}]},
 	Skill_codes.RAGE : {"name": "Rage", "components" : [{"type" : Types.BUFF_ATTACK, "target" : Targets.MYSELF, "value" : 3}]},
-	Skill_codes.SHIELD_BASH : {"name": "Shield Bash", "components" : [{"type" : Types.DEAL_DAMAGE, "target" : Targets.ENEMY, "value" : SCALE_SHIELD}]}
+	Skill_codes.SHIELD_BASH : {"name": "Shield Bash", "components" : [{"type" : Types.DEAL_DAMAGE, "target" : Targets.ENEMY, "value" : SCALE_SHIELD}]},
+	Skill_codes.POISON_FLASK : {"name": "Poison Flask", "components" : [{"type" : Types.APPLY_POISON, "target" : Targets.ENEMY, "value" : 5}]},
 	}
 
 func get_skill_details(code : int):

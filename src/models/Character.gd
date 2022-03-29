@@ -12,6 +12,7 @@ var _shield = 0
 var _hp = 0 
 var _display_name = ""
 
+var conditions = {"poison" : 0, "weak" : 0, "strength" : 0}
 
 func _ready():
 	pass # Replace with function body.
@@ -43,7 +44,7 @@ func get_initiative() -> int:
 	return _initiative
 
 func get_atk() -> int:
-	return _atk
+	return int(max(0, _atk + conditions["strength"] - conditions["weak"]))
 
 func get_max_hp() -> int:
 	return _max_hp
@@ -86,3 +87,13 @@ func signal_shield_changed():
 
 func signal_death():
 	emit_signal("died", self)
+
+func gain_condition(condition : String, stack : int):
+	conditions[condition] += stack
+
+func reset_conditions():
+	for c in conditions:
+		conditions[c] = 0
+		
+func trigger_turn_conditions():
+	receive_dmg(conditions["poison"])

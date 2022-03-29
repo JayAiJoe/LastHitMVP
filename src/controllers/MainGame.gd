@@ -10,7 +10,7 @@ var players = []
 var characters = []
 var turn_token = -1
 var player_colors = ["red", "orange", "yellow", "blue"]
-var player_count = 4
+var player_count = 1
 var character_count = 0
 
 var last_hit : Player = null
@@ -47,7 +47,8 @@ func prep_campaign():
 	for p in players:
 		console.print_output("\n[color=" + Palette.Colors[p.get_color()] +"]" + p.get_display_name() + ", choose your starters (3):[/color]")
 		var skill_text = "Skills:"
-		var choices = [1,2,3,4,5]
+		var choices = Utils.sample(Actions.Skill_codes.values().slice(1,-1), 5)
+		choices.sort()
 		for s in choices:
 			skill_text += "\n " + str(s) + " - " + Actions.get_skill_details(s)
 		console.print_output(skill_text)
@@ -97,9 +98,10 @@ func run_encounter():
 		var current_character = characters[turn_token]
 		if current_character is Player:
 			if current_character.get_hp() > 0: 
-				yield(get_player_action(characters[turn_token]), "completed")
+				yield(get_player_action(current_character), "completed")
 		else:
-			perform_enemy_action(characters[turn_token])
+			perform_enemy_action(current_character)
+		current_character.trigger_turn_conditions()
 		turn_token = (turn_token+1)%(character_count)
 	yield(end_encounter(), "completed")
 		
@@ -110,6 +112,7 @@ func end_encounter():
 	console.remove_enemy()
 	console.print_output("\nEnemy Defeated!")
 	for p in players:
+		p.reset_conditions()
 		console.print_output(p.get_display_name() + " - " + str(p.get_score()))
 		
 func handle_player_death(player : Player):
@@ -181,13 +184,18 @@ func perform_player_action(player: Player, choice : String, die : int):
 				target.receive_dmg(dmg)
 				last_hit = player
 			Actions.Types.BUFF_ATTACK:
-				player.set_atk(player.get_atk() + component["value"])
+				player.gain_condition("strength", component["value"])
 			Actions.Types.HEAL_HP:
 				player.add_to_hp(component["value"])
 			Actions.Types.GAIN_SHIELD:
 				player.add_to_shield(component["value"])
+			Actions.Types.APPLY_POISON:
+				var target: Character = enemy
+				last_hit = player
+				target.gain_condition("poison", component["value"])
+				
 
 func perform_enemy_action(enemy : Enemy):
-	var target = players[0]
+	var target = players[randi() % players.size()]
 	console.print_output("\n" + enemy.get_display_name() + " attacked " + "[color=" + Palette.Colors[target.get_color()] +"]" + target.get_display_name() + "[/color]")
 	target.receive_dmg(enemy.get_atk())
