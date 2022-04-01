@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/assets/RetroTextTheme.tres" type="Theme" id=1]
+[ext_resource path="res://src/views/Button.gd" type="Script" id=2]
+
+[node name="Button" type="Panel"]
+margin_right = 100.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 100, 40 )
+theme = ExtResource( 1 )
+script = ExtResource( 2 )
+
+[node name="Label" type="Label" parent="."]
+margin_right = 40.0
+margin_bottom = 26.0
+rect_min_size = Vector2( 100, 40 )
+text = "Play"
+align = 1
+valign = 1
+
+[connection signal="gui_input" from="." to="." method="_on_Button_gui_input"]
+[connection signal="mouse_entered" from="." to="." method="_on_Button_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_Button_mouse_exited"]

@@ -549,6 +549,31 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/gdUnit3/src/asserts/GdUnitVector3AssertImpl.gd"
 }, {
+"base": "Reference",
+"class": "GotmDebug",
+"language": "GDScript",
+"path": "res://gotm/GotmDebug.gd"
+}, {
+"base": "Reference",
+"class": "GotmFile",
+"language": "GDScript",
+"path": "res://gotm/GotmFile.gd"
+}, {
+"base": "Reference",
+"class": "GotmLobby",
+"language": "GDScript",
+"path": "res://gotm/GotmLobby.gd"
+}, {
+"base": "Reference",
+"class": "GotmLobbyFetch",
+"language": "GDScript",
+"path": "res://gotm/GotmLobbyFetch.gd"
+}, {
+"base": "Reference",
+"class": "GotmUser",
+"language": "GDScript",
+"path": "res://gotm/GotmUser.gd"
+}, {
 "base": "Fuzzer",
 "class": "IntFuzzer",
 "language": "GDScript",
@@ -638,6 +663,21 @@ _global_script_classes=[ {
 "class": "Vector3Fuzzer",
 "language": "GDScript",
 "path": "res://addons/gdUnit3/src/fuzzers/Vector3Fuzzer.gd"
+}, {
+"base": "Reference",
+"class": "_GotmDebugImpl",
+"language": "GDScript",
+"path": "res://gotm/_impl/_GotmDebugImpl.gd"
+}, {
+"base": "Reference",
+"class": "_GotmImpl",
+"language": "GDScript",
+"path": "res://gotm/_impl/_GotmImpl.gd"
+}, {
+"base": "Reference",
+"class": "_GotmImplUtility",
+"language": "GDScript",
+"path": "res://gotm/_impl/_GotmImplUtility.gd"
 }, {
 "base": "Node",
 "class": "_TestCase",
@@ -758,6 +798,11 @@ _global_script_class_icons={
 "GdUnitVector2AssertImpl": "",
 "GdUnitVector3Assert": "",
 "GdUnitVector3AssertImpl": "",
+"GotmDebug": "",
+"GotmFile": "",
+"GotmLobby": "",
+"GotmLobbyFetch": "",
+"GotmUser": "",
 "IntFuzzer": "",
 "LocalTime": "",
 "Player": "",
@@ -776,6 +821,9 @@ _global_script_class_icons={
 "ValueProvider": "",
 "Vector2Fuzzer": "",
 "Vector3Fuzzer": "",
+"_GotmDebugImpl": "",
+"_GotmImpl": "",
+"_GotmImplUtility": "",
 "_TestCase": "",
 "_TestSuiteScanner": ""
 }
@@ -783,7 +831,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Last Hit Mvp"
-run/main_scene="res://src/controllers/MainGame.tscn"
+run/main_scene="res://src/controllers/MainMenu.tscn"
 config/icon="res://icon.png"
 
 [autoload]
@@ -791,6 +839,8 @@ config/icon="res://icon.png"
 Actions="*res://src/models/Actions.gd"
 Palette="*res://src/assets/Palette.gd"
 Utils="*res://src/controllers/Utils.gd"
+Gotm="*res://gotm/Gotm.gd"
+Multiplayer="*res://src/controllers/Multiplayer.gd"
 
 [physics]
 
