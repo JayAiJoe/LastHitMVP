@@ -8,6 +8,9 @@ var _color
 var my_info = {}
 var player_info = {}
 
+const PORT = 8070
+var peer = null
+
 func _init():
 	randomize()
 	var n = randi()%names.size()
