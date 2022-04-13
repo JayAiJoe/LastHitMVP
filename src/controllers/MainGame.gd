@@ -162,40 +162,76 @@ func get_player_action(player : Player):
 		die = action.right(1) as int
 	
 	console.print_output("[color=" + Palette.Colors[player.get_color()] +"]" +player.get_display_name() + "[/color]" + " used " + Actions.skills[player.skills[choice]]["name"])
-	perform_player_action(player, choice, die)
-
-func perform_player_action(player: Player, choice : String, die : int):
-	player.consume_die(die)
-	console.add_action(player, die)
-	var code = player.skills[choice]
-	for component in Actions.skills[code]["components"]:
-		match(component["type"]):
-			Actions.Types.DEAL_DAMAGE:
-				var dmg = 0
-				match(component["value"]):
-					Actions.SCALE_ATK:
-						dmg = player.get_atk()
-					Actions.SCALE_SHIELD:
-						dmg = player.get_shield()
-					_:
-						dmg = component["value"]
-				var target : Character
-				target = enemy
-				target.receive_dmg(dmg)
-				last_hit = player
-			Actions.Types.BUFF_ATTACK:
-				player.gain_condition("strength", component["value"])
-			Actions.Types.HEAL_HP:
-				player.add_to_hp(component["value"])
-			Actions.Types.GAIN_SHIELD:
-				player.add_to_shield(component["value"])
-			Actions.Types.APPLY_POISON:
-				var target: Character = enemy
-				last_hit = player
-				target.gain_condition("poison", component["value"])
-				
-
+	perform_action(player, choice, die)
+	
 func perform_enemy_action(enemy : Enemy):
 	var target = players[randi() % players.size()]
 	console.print_output("\n" + enemy.get_display_name() + " attacked " + "[color=" + Palette.Colors[target.get_color()] +"]" + target.get_display_name() + "[/color]")
 	target.receive_dmg(enemy.get_atk())
+	
+func perform_action(actor: Character, choice : String, die : int, targets = []): #targets = character list
+	if actor is Player:
+		actor.consume_die(die)
+	console.add_action(actor, die)
+	var code = actor.skills[choice]
+	for component in Actions.skills[code]["components"]:
+		
+		#set number of instances
+		var instances = component["instances"]
+		for instance in instances:
+			
+			#set amount to do
+			var amount = 0
+			if component["scaling"] == true:
+				var x = 0
+				match(component["attribute"]):
+					Actions.Attribute.ATTACK:
+						x = actor.get_atk()
+					Actions.Attribute.SHIELD:
+						x = actor.get_shield()
+					Actions.Attribute.HP:
+						x = actor.get_hp()
+						
+				amount = component["scale_m"]*x + component["scale_b"]
+			else: #constant
+				amount = component["value"]
+			
+			#do it to targets
+			for target in targets:
+				match(component["action"]):
+					Actions.ActionType.DAMAGE:
+						deal_damage(actor, target, amount)
+					Actions.ActionType.HEAL:
+						pass
+					Actions.ActionType.SHIELD:
+						pass
+					Actions.ActionType.GIVE_STATUS:
+						pass
+
+func deal_damage(giver : Character, receiver : Character, amount : int, misc = {}):
+	#(amount modifiers)
+	var hp_loss = amount-receiver._shield
+	receiver._shield = max(0, receiver._shield-amount)
+	receiver.signal_shield_changed()
+	if hp_loss > 0:
+		receiver._hp -= hp_loss
+		receiver.signal_hp_changed()
+	if receiver._hp <= 0:
+		receiver.signal_death()
+	
+func heal(giver : Character, receiver : Character, amount : int, misc = {}):
+	#(amount modifiers)
+	receiver._hp = max(receiver._max_hp, receiver._hp + amount)
+	receiver.signal_hp_changed()
+	
+func give_shield(giver : Character, receiver : Character, amount : int, misc = {}):
+	#(amount modifiers)
+	receiver._shield += amount
+	receiver.signal_shield_changed()
+	
+func give_status(giver : Character, receiver : Character, status: int, amount : int, misc = {}):
+	#(amount modifiers)
+	if status in receiver.statuses:
+		receiver.statuses[status]["stacks"] += amount
+	else:
+		receiver.statuses[status] = {"stacks":amount, "giver":giver}

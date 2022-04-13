@@ -12,7 +12,19 @@ var _shield = 0
 var _hp = 0 
 var _display_name = ""
 
-var conditions = {"poison" : 0, "weak" : 0, "strength" : 0}
+var statuses = {}
+
+#passives
+var encounter_start_effects = []
+var encounter_end_effects = []
+var turn_start_effects = []
+var turn_end_effects = []
+var hit_enemy_effects = []
+var get_hit_effects = []
+var gain_shield_effects = []
+var gain_heal_effects = []
+
+var last_hit_by : Character
 
 func _ready():
 	pass # Replace with function body.
@@ -44,7 +56,12 @@ func get_initiative() -> int:
 	return _initiative
 
 func get_atk() -> int:
-	return int(max(0, _atk + conditions["strength"] - conditions["weak"]))
+	var temp_atk = _atk
+	if Actions.Status.STRENGTH in statuses:
+		temp_atk += statuses[Actions.Status.STRENGTH]["stacks"]
+	if Actions.Status.WEAK in statuses:
+		temp_atk -= statuses[Actions.Status.WEAK]["stacks"]
+	return int(max(0, temp_atk))
 
 func get_max_hp() -> int:
 	return _max_hp
@@ -88,12 +105,14 @@ func signal_shield_changed():
 func signal_death():
 	emit_signal("died", self)
 
-func gain_condition(condition : String, stack : int):
-	conditions[condition] += stack
+func gain_condition(condition : String, stack : int, giver : Character):
+	if condition in statuses:
+		statuses[condition]["stacks"] += stack
+	else:
+		statuses[condition] = {"stacks":stack, "giver":giver}
 
 func reset_conditions():
-	for c in conditions:
-		conditions[c] = 0
+	statuses = {}
 		
 func trigger_turn_conditions():
-	receive_dmg(conditions["poison"])
+	receive_dmg(statuses[Actions.Status.POISON]["stacks"])

@@ -8,20 +8,54 @@ const SCALE_SHIELD = -998
 const SCALE_HP = -997
 const SCALE_DICE = -996
 
-enum Targets {
-	ENEMY,
-	ONE_PLAYER,
-	MULTI_PLAYER,
-	MYSELF,
-	ALL
+enum TriggerType {
+	ON_USE,
+	ON_PERFORM_ACTION,
+	ON_ENCOUNTER_START,
+	ON_ENCOUNTER_END,
+	ON_ENEMY_HIT,
+	ON_DAMAGE_RECEIVE,
+	ON_HEAL_RECEIVE
 }
 
-enum Types {
-	DEAL_DAMAGE,
-	BUFF_ATTACK,
-	HEAL_HP,
-	GAIN_SHIELD,
-	APPLY_POISON
+enum TargetType {
+	SELF,
+	NOT_SELF,
+	ALLY,
+	PLAYER,
+	ENEMY,
+	EVERYONE,
+	CREATURE_SELF,
+	CREATURE_OTHER
+}
+
+enum TargetNum {
+	ALL,
+	NONE,
+	NUM
+}
+
+enum ActionType {
+	DAMAGE,
+	HEAL,
+	SHIELD,
+	GIVE_STATUS
+}
+
+enum Status {
+	STRENGTH,
+	DURABLE,
+	BARRIER,
+	WEAK,
+	VULNERABLE,
+	POISON
+}
+
+enum Attribute {
+	ATTACK,
+	SHIELD,
+	HP,
+	DICE
 }
 
 #match enum to skills array
@@ -36,13 +70,68 @@ enum Skill_codes {
 }
 
 var skills = {
-	Skill_codes.NORMAL_ATTACK : {"name": "Normal Attack", "components" : [{"type" : Types.DEAL_DAMAGE, "target" : Targets.ENEMY, "value" : SCALE_ATK}]}, 
-	Skill_codes.FIREBALL : {"name": "Fireball", "components" : [{"type" : Types.DEAL_DAMAGE, "target" : Targets.ENEMY, "value" : 10}]},
-	Skill_codes.BLOCK : {"name": "Block", "components" : [{"type" : Types.GAIN_SHIELD, "target" : Targets.MYSELF, "value" : 10}]},
-	Skill_codes.MINOR_HEALING : {"name": "Minor Healing", "components" : [{"type" : Types.HEAL_HP, "target" : Targets.MYSELF, "value" : 10}]},
-	Skill_codes.RAGE : {"name": "Rage", "components" : [{"type" : Types.BUFF_ATTACK, "target" : Targets.MYSELF, "value" : 3}]},
-	Skill_codes.SHIELD_BASH : {"name": "Shield Bash", "components" : [{"type" : Types.DEAL_DAMAGE, "target" : Targets.ENEMY, "value" : SCALE_SHIELD}]},
-	Skill_codes.POISON_FLASK : {"name": "Poison Flask", "components" : [{"type" : Types.APPLY_POISON, "target" : Targets.ENEMY, "value" : 5}]},
+	Skill_codes.NORMAL_ATTACK : {"name": "Normal Attack", "components" : [{"trigger" : TriggerType.ON_USE,
+																			"target" : TargetType.ENEMY,
+																			"target_num" : TargetNum.NUM,
+																			"num_targets" : 1,
+																			"action" : ActionType.DAMAGE,
+																			"scaling" : true,
+																			"scale_m" : 1,
+																			"scale_b" : 0,
+																			"value" : Attribute.ATTACK,
+																			"instances" : 1}]}, 
+	
+	Skill_codes.BLOCK : {"name": "Block", "components" : [{"trigger" : TriggerType.ON_USE,
+																			"target" : TargetType.SELF,
+																			"action" : ActionType.SHIELD,
+																			"scaling" : false,
+																			"value" : 10,
+																			"instances" : 1}]},
+	
+	Skill_codes.FIREBALL : {"name": "Fireball", "components" : [{"trigger" : TriggerType.ON_USE,
+																			"target" : TargetType.ENEMY,
+																			"target_num" : TargetNum.NUM,
+																			"num_targets" : 1,
+																			"action" : ActionType.DAMAGE,
+																			"scaling" : false,
+																			"value" : 10,
+																			"instances" : 1}]},
+	
+	Skill_codes.RAGE : {"name": "Rage", "components" : [{"trigger" : TriggerType.ON_USE,
+																			"target" : TargetType.SELF,
+																			"action" : ActionType.GIVE_STATUS,
+																			"status_id" : Status.STRENGTH,
+																			"scaling" : false,
+																			"value" : 3,
+																			"instances" : 1}]},
+	
+	Skill_codes.MINOR_HEALING : {"name": "Minor Healing", "components" : [{"trigger" : TriggerType.ON_USE,
+																			"target" : TargetType.SELF,
+																			"action" : ActionType.HEAL,
+																			"scaling" : false,
+																			"value" : 10,
+																			"instances" : 1}]},
+	
+	Skill_codes.SHIELD_BASH : {"name": "Shield Bash", "components" : [{"trigger" : TriggerType.ON_USE,
+																			"target" : TargetType.ENEMY,
+																			"target_num" : TargetNum.NUM,
+																			"num_targets" : 1,
+																			"action" : ActionType.DAMAGE,
+																			"scaling" : true,
+																			"scale_m" : 1,
+																			"scale_b" : 0,
+																			"value" : Attribute.SHIELD,
+																			"instances" : 1}]}, 
+	
+	Skill_codes.POISON_FLASK : {"name": "Poison Flask", "components" : [{"trigger" : TriggerType.ON_USE,
+																			"target" : TargetType.ENEMY,
+																			"target_num" : TargetNum.NUM,
+																			"num_targets" : 1,
+																			"action" : ActionType.GIVE_STATUS,
+																			"status_id" : Status.POISON,
+																			"scaling" : false,
+																			"value" : 5,
+																			"instances" : 1}]}, 
 	}
 
 func get_skill_details(code : int):
