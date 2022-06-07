@@ -202,11 +202,11 @@ func perform_action(actor: Character, choice : String, die : int, targets = []):
 					Actions.ActionType.DAMAGE:
 						deal_damage(actor, target, amount)
 					Actions.ActionType.HEAL:
-						pass
+						heal(actor, target, amount)
 					Actions.ActionType.SHIELD:
-						pass
+						give_shield(actor, target, amount)
 					Actions.ActionType.GIVE_STATUS:
-						pass
+						give_status(actor, target, component["status_id"], amount)
 
 func deal_damage(giver : Character, receiver : Character, amount : int, misc = {}):
 	#(amount modifiers)
